@@ -1,10 +1,461 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Git Practice Portfolio</title>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Git Version Control — Omoladeaboaba</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0d0d0d;
+      --surface: #161616;
+      --border: #2a2a2a;
+      --text: #f0ede8;
+      --muted: #666;
+      --accent: #c8f04d;
+      --accent-dim: #c8f04d22;
+      --radius: 8px;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Syne', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* ── NOISE TEXTURE ── */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0.4;
+    }
+
+    /* ── HERO ── */
+    .hero {
+      position: relative;
+      padding: 6rem 2rem 4rem;
+      max-width: 900px;
+      margin: 0 auto;
+      z-index: 1;
+    }
+
+    .hero-tag {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.72rem;
+      color: var(--accent);
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      border: 1px solid var(--accent);
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 20px;
+      margin-bottom: 1.5rem;
+      animation: fadeUp 0.6s ease both;
+    }
+
+    .hero h1 {
+      font-size: clamp(2.5rem, 7vw, 5rem);
+      font-weight: 800;
+      line-height: 1.0;
+      letter-spacing: -0.03em;
+      margin-bottom: 1.5rem;
+      animation: fadeUp 0.6s 0.1s ease both;
+    }
+
+    .hero h1 em {
+      font-style: normal;
+      color: var(--accent);
+    }
+
+    .hero-desc {
+      font-size: 1rem;
+      color: var(--muted);
+      line-height: 1.7;
+      max-width: 520px;
+      animation: fadeUp 0.6s 0.2s ease both;
+    }
+
+    .hero-links {
+      display: flex;
+      gap: 1rem;
+      margin-top: 2rem;
+      animation: fadeUp 0.6s 0.3s ease both;
+      flex-wrap: wrap;
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      color: #0d0d0d;
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      font-size: 0.85rem;
+      padding: 0.65rem 1.5rem;
+      border-radius: var(--radius);
+      text-decoration: none;
+      letter-spacing: 0.02em;
+      transition: opacity 0.15s;
+    }
+    .btn-primary:hover { opacity: 0.85; }
+
+    .btn-secondary {
+      border: 1px solid var(--border);
+      color: var(--text);
+      font-family: 'Syne', sans-serif;
+      font-weight: 500;
+      font-size: 0.85rem;
+      padding: 0.65rem 1.5rem;
+      border-radius: var(--radius);
+      text-decoration: none;
+      transition: border-color 0.15s;
+    }
+    .btn-secondary:hover { border-color: var(--accent); color: var(--accent); }
+
+    /* ── DIVIDER ── */
+    .divider {
+      border: none;
+      border-top: 1px solid var(--border);
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    /* ── SECTION ── */
+    section {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 3rem 2rem;
+      position: relative;
+      z-index: 1;
+    }
+
+    .section-label {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.68rem;
+      color: var(--muted);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-bottom: 1.5rem;
+    }
+
+    /* ── COMMAND LOG ── */
+    .cmd-log {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+
+    .cmd-bar {
+      background: #1e1e1e;
+      padding: 0.6rem 1rem;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      border-bottom: 1px solid var(--border);
+    }
+    .dot { width: 10px; height: 10px; border-radius: 50%; }
+    .dot.r { background: #ff5f57; }
+    .dot.y { background: #ffbd2e; }
+    .dot.g { background: #28c840; }
+    .cmd-bar span { font-family: 'DM Mono', monospace; font-size: 0.7rem; color: #555; margin-left: 6px; }
+
+    .cmd-body {
+      padding: 1.25rem 1.5rem;
+      font-family: 'DM Mono', monospace;
+      font-size: 0.78rem;
+      line-height: 2;
+    }
+
+    .cmd-line { display: flex; align-items: baseline; gap: 0.75rem; }
+    .prompt { color: var(--accent); user-select: none; }
+    .cmd-text { color: #e0e0e0; }
+    .cmd-comment { color: #444; font-size: 0.72rem; margin-left: 0.5rem; }
+    .cmd-out { color: #555; padding-left: 1.5rem; font-size: 0.72rem; }
+
+    /* ── CONCEPTS GRID ── */
+    .concepts {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      gap: 1px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      background: var(--border);
+    }
+
+    .concept-card {
+      background: var(--surface);
+      padding: 1.5rem;
+      transition: background 0.15s;
+    }
+    .concept-card:hover { background: #1c1c1c; }
+
+    .concept-icon {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.7rem;
+      color: var(--accent);
+      background: var(--accent-dim);
+      border: 1px solid var(--accent);
+      display: inline-block;
+      padding: 3px 8px;
+      border-radius: 4px;
+      margin-bottom: 0.75rem;
+    }
+
+    .concept-card h3 {
+      font-size: 0.95rem;
+      font-weight: 600;
+      margin-bottom: 0.4rem;
+    }
+
+    .concept-card p {
+      font-size: 0.78rem;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
+    /* ── TIMELINE ── */
+    .timeline { display: flex; flex-direction: column; gap: 0; }
+
+    .tl-item {
+      display: grid;
+      grid-template-columns: 140px 1px 1fr;
+      gap: 0 1.5rem;
+      padding-bottom: 2rem;
+    }
+
+    .tl-time {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.7rem;
+      color: var(--muted);
+      text-align: right;
+      padding-top: 2px;
+    }
+
+    .tl-line {
+      background: var(--border);
+      position: relative;
+      display: flex;
+      justify-content: center;
+    }
+    .tl-line::before {
+      content: '';
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--accent);
+      position: absolute;
+      top: 4px;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+
+    .tl-content h3 { font-size: 0.9rem; font-weight: 600; margin-bottom: 0.3rem; }
+    .tl-content p { font-size: 0.78rem; color: var(--muted); line-height: 1.6; }
+    .tl-cmd {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.7rem;
+      color: var(--accent);
+      background: var(--accent-dim);
+      padding: 2px 8px;
+      border-radius: 4px;
+      display: inline-block;
+      margin-top: 0.4rem;
+    }
+
+    /* ── FOOTER ── */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 2rem;
+      text-align: center;
+      font-size: 0.75rem;
+      color: var(--muted);
+      position: relative;
+      z-index: 1;
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+  </style>
 </head>
 <body>
-  <h1>Git Version Control Practice</h1>
-  <p>Documenting my Git version control practice.</p>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-tag">Week 2 Deliverable — Version Control</div>
+  <h1>Git &<br/><em>GitHub</em><br/>in Practice</h1>
+  <p class="hero-desc">Hands-on practice of Git version control — creating repositories, branching, committing, reverting, merging and working with pull requests via the command line.</p>
+  <div class="hero-links">
+    <a class="btn-primary" href="https://github.com/omoladeaboaba/git-version-control-practice" target="_blank">View Repository →</a>
+    <a class="btn-secondary" href="https://github.com/omoladeaboaba" target="_blank">GitHub Profile</a>
+  </div>
+</div>
+
+<hr class="divider"/>
+
+<!-- CONCEPTS -->
+<section>
+  <p class="section-label">01 — Concepts Covered</p>
+  <div class="concepts">
+    <div class="concept-card">
+      <div class="concept-icon">git init / clone</div>
+      <h3>Repositories</h3>
+      <p>Created a new repo on GitHub and cloned it locally using the command line.</p>
+    </div>
+    <div class="concept-card">
+      <div class="concept-icon">git checkout -b</div>
+      <h3>Branching</h3>
+      <p>Created feature branches to work on changes independently from the main branch.</p>
+    </div>
+    <div class="concept-card">
+      <div class="concept-icon">git commit</div>
+      <h3>Committing</h3>
+      <p>Staged and committed changes with descriptive messages to document progress.</p>
+    </div>
+    <div class="concept-card">
+      <div class="concept-icon">git revert</div>
+      <h3>Reverting</h3>
+      <p>Used git revert to safely undo a commit without rewriting history.</p>
+    </div>
+    <div class="concept-card">
+      <div class="concept-icon">git push / pull</div>
+      <h3>Push & Pull</h3>
+      <p>Pushed local changes upstream to GitHub and pulled remote changes downstream.</p>
+    </div>
+    <div class="concept-card">
+      <div class="concept-icon">git fetch / merge</div>
+      <h3>Fetch & Merge</h3>
+      <p>Fetched remote changes and merged branches to combine work streams.</p>
+    </div>
+    <div class="concept-card">
+      <div class="concept-icon">git branch -m</div>
+      <h3>Renaming Branches</h3>
+      <p>Renamed a branch locally and updated the remote reference on GitHub.</p>
+    </div>
+    <div class="concept-card">
+      <div class="concept-icon">Pull Request</div>
+      <h3>Pull Requests</h3>
+      <p>Created, reviewed and merged a pull request on GitHub to integrate changes.</p>
+    </div>
+  </div>
+</section>
+
+<hr class="divider"/>
+
+<!-- COMMAND LOG -->
+<section>
+  <p class="section-label">02 — Commands Practiced</p>
+  <div class="cmd-log">
+    <div class="cmd-bar">
+      <div class="dot r"></div><div class="dot y"></div><div class="dot g"></div>
+      <span>bash — git-version-control-practice</span>
+    </div>
+    <div class="cmd-body">
+      <div class="cmd-line"><span class="prompt">$</span><span class="cmd-text">git clone https://github.com/omoladeaboaba/git-version-control-practice.git</span></div>
+      <div class="cmd-out">Cloning into 'git-version-control-practice'...</div>
+
+      <div class="cmd-line"><span class="prompt">$</span><span class="cmd-text">git add .</span><span class="cmd-comment"># stage all changes</span></div>
+      <div class="cmd-line"><span class="prompt">$</span><span class="cmd-text">git commit -m "updated README with project details"</span></div>
+      <div class="cmd-line"><span class="prompt">$</span><span class="cmd-text">git push origin main</span></div>
+      <div class="cmd-out">main -> main</div>
+
+      <div class="cmd-line"><span class="prompt">$</span><span class="cmd-text">git checkout -b feature/add-portfolio-page</span><span class="cmd-comment"># new branch</span></div>
+      <div class="cmd-line"><span class="prompt">$</span><span class="cmd-text">git push origin feature/add-portfolio-page</span></div>
+
+      <div class="cmd-line"><span class="prompt">$</span><span class="cmd-text">git revert f88c733 --no-edit</span><span class="cmd-comment"># undo a commit safely</span></div>
+
+      <div class="cmd-line"><span class="prompt">$</span><span class="cmd-text">git fetch origin</span></div>
+      <div class="cmd-line"><span class="prompt">$</span><span class="cmd-text">git merge origin/feature/add-portfolio-page</span></div>
+
+      <div class="cmd-line"><span class="prompt">$</span><span class="cmd-text">git branch -m feature/add-portfolio-page feature/portfolio-page-v1</span><span class="cmd-comment"># rename</span></div>
+      <div class="cmd-line"><span class="prompt">$</span><span class="cmd-text">git push origin --delete feature/add-portfolio-page</span><span class="cmd-comment"># remove old</span></div>
+
+      <div class="cmd-line"><span class="prompt">$</span><span class="cmd-text">git log --oneline</span></div>
+      <div class="cmd-out">3bb18ad Merge pull request #2</div>
+      <div class="cmd-out">dfeff0a Revert "edited index.html - testing revert"</div>
+      <div class="cmd-out">ab83d0b updated README with project details</div>
+      <div class="cmd-out">e61f5b4 initial commit - added README</div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider"/>
+
+<!-- TIMELINE -->
+<section>
+  <p class="section-label">03 — What I Did & Why</p>
+  <div class="timeline">
+    <div class="tl-item">
+      <div class="tl-time">Step 1</div>
+      <div class="tl-line"></div>
+      <div class="tl-content">
+        <h3>Created & Cloned the Repository</h3>
+        <p>Set up a new public repository on GitHub, then cloned it to my local machine using the command line to begin working.</p>
+        <span class="tl-cmd">git clone [url]</span>
+      </div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-time">Step 2</div>
+      <div class="tl-line"></div>
+      <div class="tl-content">
+        <h3>Made & Pushed Commits</h3>
+        <p>Edited the README, staged changes and committed them with clear messages, then pushed to GitHub.</p>
+        <span class="tl-cmd">git add . → git commit → git push</span>
+      </div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-time">Step 3</div>
+      <div class="tl-line"></div>
+      <div class="tl-content">
+        <h3>Created a Feature Branch</h3>
+        <p>Created a new branch to work on a portfolio page independently without touching the main branch.</p>
+        <span class="tl-cmd">git checkout -b feature/add-portfolio-page</span>
+      </div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-time">Step 4</div>
+      <div class="tl-line"></div>
+      <div class="tl-content">
+        <h3>Reverted a Commit</h3>
+        <p>Intentionally made a change then used git revert to safely undo it, preserving the commit history.</p>
+        <span class="tl-cmd">git revert [commit-id] --no-edit</span>
+      </div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-time">Step 5</div>
+      <div class="tl-line"></div>
+      <div class="tl-content">
+        <h3>Fetched, Merged & Renamed</h3>
+        <p>Fetched remote changes, merged the feature branch into main, then renamed the branch and deleted the old reference.</p>
+        <span class="tl-cmd">git fetch → git merge → git branch -m</span>
+      </div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-time">Step 6</div>
+      <div class="tl-line"></div>
+      <div class="tl-content">
+        <h3>Created & Merged a Pull Request</h3>
+        <p>Opened a pull request on GitHub, reviewed the changes and merged it into the main branch.</p>
+        <span class="tl-cmd">GitHub → Pull Requests → Merge</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  Git Version Control Practice · 2026 FIP Programme
+</footer>
+
 </body>
 </html>
